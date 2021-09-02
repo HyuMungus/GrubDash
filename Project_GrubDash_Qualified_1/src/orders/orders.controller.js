@@ -16,7 +16,7 @@ function create(req,res) {
   res.status(201).json({data: newOrder})
  }
 
-function read(req,res,next) {
+function read(req,res) {
   const orderFound = res.locals.order
   if (orderFound) {
     res.json({data: orderFound[0]})
@@ -75,19 +75,13 @@ function isIdValid(req,res,next) {
 }
 
 function isStatusValid(req,res,next) {
-  const {data: {status} = {}} = req.body
-  try {
-    if (status !== ('pending' || 'preparing' || 'out-for-delivering' || 'delivered')) {
-      next({status: 400, message: 'Order must have a status of pending, preparing, out-for-delivery, or delivered'})
-    }
-    if (status === 'delivered') {
-      return next({status: 400, message: 'A delivered order cannot be changed'})
-    }
+  const {data: {status}} = req.body
+  const validStatus = ['pending', 'preparing', 'out-for-delivery', 'delivered']
+  if (validStatus.includes(status)){
+    res.locals.status = status
     next()
   }
-  catch(error) {
-    console.log('ERROR =', error)
-  }
+  next({status: 400, message: `Order must have a status of pending, preparing, out-for-delivery, delivered`})
 }
 
 function isCreateValid(req,res,next) {
