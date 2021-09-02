@@ -12,25 +12,13 @@ function list(req, res) {
 }
 
 function create(req, res) {
-  
-  const newId = nextId()
-  const newName = req.body.data.name
-  const newDesc = req.body.data.description
-  const newPrice = req.body.data.price
-  const newImgUrl = req.body.data.image_url
-  
-  const{ 
-    data: { id, name, description, price, image_url }   //,//
-  } = req.body
-  
   const newDish = {
     id: nextId(),
-    name: req.body.data.name,
-    description: req.body.data.description,
-    price: req.body.data.price,
-    image_url: req.body.data.image_url
-  }
-  
+    name: res.locals.name,
+    description: res.locals.description,
+    price: res.locals.price,
+    image_url: res.locals.image_url
+  }  
   dishes.push(newDish)
   res.status(201).json({data: newDish})
   
@@ -86,44 +74,42 @@ function isIdValid(req,res,next) {
 }
 
 function isNameValid(req,res,next) {
-  const {data: name} = req.body
-  const reqName = req.body.data.name
-  if (reqName === null || reqName === undefined || reqName === "") {
-    next({status: 400, message: 'Dish must include a name.'})
+  const {data: {name}} = req.body
+  if (name) {
+    res.locals.name = name
+    next()
   }
-  next()
+    next({status: 400, message: 'Dish must include a name.'})
 }
 
 function isDescValid(req,res,next) {
-  const {data: description} = req.body
-  const reqDesc = req.body.data.description
-  if (reqDesc === null || reqDesc === undefined || reqDesc === "") {
-    next({status: 400, message: 'Dish must include a description.'})
+  const {data: { description }} = req.body
+  if (description) {
+    res.locals.description = description
+    next()
   }
-  next()
+  next({status: 400, message: "Dish must include a description"})
 }
 
 function isPriceValid(req,res,next) {
-  const {data: price} = req.body
-  const reqPrice = req.body.data.price
-  if (reqPrice === null || reqPrice === undefined || reqPrice === '') {
-    next({status: 400, message: 'Dish must include a price.'})
-  }
-  if (typeof reqPrice === 'number' && reqPrice > 0){
-    return next()
-  }
-  else {
+  const {data: {price}} = req.body
+  if (price <= 0 || typeof price != 'number'){
     next({status: 400, message: 'The price must be a number greater than 0'})
   }
+  if (price) {
+    res.locals.price = price
+    next()
+  }
+  next({status: 400, message: 'Dish must include a price.'})
 }
 
 function isUrlValid(req,res,next) {
-  const {data: image_url} = req.body
-  const reqImg = req.body.data.image_url
-  if (reqImg === null || reqImg === undefined || reqImg === "") {
-    next({status: 400, message: 'Dish must include a image_url.'})
+  const {data: {image_url}} = req.body
+  if (image_url){
+    res.locals.image_url
+    next()
   }
-  next()
+  next({status: 400, message: 'Dish must include a image_url.'})
 }
 
 
